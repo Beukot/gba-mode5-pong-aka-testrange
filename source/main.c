@@ -74,7 +74,7 @@ void moveBall() {
         ballDX = -1;
     }
     if (ball.x < 0) {
-        ball.x += 1;
+        ball.x = 0;
         ballDX = 1;
     }
     if (ball.y > SH - BALL_SIZE) {
@@ -82,9 +82,43 @@ void moveBall() {
         ballDY = -1;
     }
     if (ball.y < 0) {
-        ball.y += 1;
+        ball.y = 0;
         ballDY = 1;
     }
+
+    if (ball.x + BALL_SIZE > enemy.x && ball.x < enemy.x + PADDLE_WIDTH &&
+        ball.y > enemy.y && ball.y < enemy.y + PADDLE_HEIGHT) {
+
+        if (ballDX == 1) {
+            ball.x = enemy.x - BALL_SIZE;
+            ballDX = -1;
+            goto BOUNCED;
+        }
+
+        if (ballDX == -1) {
+            ball.x = enemy.x + PADDLE_WIDTH + 1;
+            ballDX = 1;
+            goto BOUNCED;
+        }
+    }
+
+    if (ball.x + BALL_SIZE > player.x && ball.x < player.x + PADDLE_WIDTH &&
+        ball.y > player.y && ball.y < player.y + PADDLE_HEIGHT) {
+
+        if (ballDX == -1) {
+            ball.x = player.x + PADDLE_WIDTH;
+            ballDX = 1;
+            goto BOUNCED;
+        }
+
+        if (ballDX == 1) {
+            ball.x = player.x - BALL_SIZE;
+            ballDX = -1;
+            goto BOUNCED;
+        }
+    }
+
+    BOUNCED:;
 
     drawObject(&ball);
 }
