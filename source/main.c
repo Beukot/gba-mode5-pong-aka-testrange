@@ -8,6 +8,7 @@
 #define PADDLE_OFFSET 20
 #define PADDLE_WIDTH 4
 #define PADDLE_HEIGHT 30
+#define BALL_SIZE 2
 
 int lastFr = 0;
 int FPS = 0;
@@ -15,6 +16,7 @@ int FPS = 0;
 u16 bgColor = RGB(8,12,16);
 u16 lineColor = RGB(4,6,8);
 u16 paddleColor = RGB(31, 31, 31);
+u16 ballColor = RGB(26, 13, 26);
 
 typedef struct {
     int x;
@@ -22,9 +24,11 @@ typedef struct {
     int width;
     int height;
     u16 color;
-} Object;    
+} Object;
+
 Object player;
 Object enemy;
+Object ball;
 
 void clearBackground()
 {
@@ -109,6 +113,12 @@ void init() {
     enemy.x = SW - PADDLE_WIDTH - PADDLE_OFFSET;
     enemy.y = SH / 2 - PADDLE_HEIGHT / 2;
     enemy.color = paddleColor;
+
+    ball.width = BALL_SIZE;
+    ball.height = BALL_SIZE;
+    ball.x = SW / 2 - BALL_SIZE / 2;
+    ball.y = SH / 2 - BALL_SIZE / 2;
+    ball.color = ballColor;
     
     drawObject(&player);
 }
@@ -123,23 +133,43 @@ int main() {
     REG_BG2PD=128;                                         //256=normal 128=scale     
     
     init();
+
+    int paddleDirection = 1;
     
     while (1) {
-        
-        
         if(REG_TM2D>>12!=lastFr) {
             clearBackground();
             buttons();
             drawObject(&player);
             drawObject(&enemy);
-            
+            drawObject(&ball);
+
+            if (paddleDirection == 1) {
+                enemy.y += 2;
+                //drawObject(&enemy);
+                if(enemy.y > SH-1 - enemy.height){
+                    enemy.y = SH - enemy.height;
+                    drawObject(&enemy);
+                    paddleDirection = 0;
+                }
+            }
+
+            if (paddleDirection == 0) {
+                enemy.y -= 2;
+                //drawObject(&enemy);
+                if(enemy.y < 0){
+                    enemy.y = 0;
+                    drawObject(&enemy);
+                    paddleDirection = 1;
+                }
+            }
 
             //frames per second---------------------------------------------------------- 
             VRAM[15] = 0; 
             VRAM[FPS] = RGB(31, 31, 0);                               //draw fps 
             
             FPS+=1;                                                 //increase frame
-            if(lastFr>REG_TM2D>>12){ 
+            if(lastFr>REG_TM2D>>12){
                 FPS = 0;                                            //reset counter?
             }                          
             
