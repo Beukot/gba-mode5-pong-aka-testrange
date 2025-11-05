@@ -130,40 +130,14 @@ int main() {
 
     //scale small mode 5 screen to full screen-------------------------------------
     REG_BG2PA=128;                                         //256=normal 128=scale 
-    REG_BG2PD=128;                                         //256=normal 128=scale     
-    
+    REG_BG2PD=128;                                         //256=normal 128=scale
+
     init();
 
     int paddleDirection = 1;
     
     while (1) {
         if(REG_TM2D>>12!=lastFr) {
-            clearBackground();
-            buttons();
-            drawObject(&player);
-            drawObject(&enemy);
-            drawObject(&ball);
-
-            if (paddleDirection == 1) {
-                enemy.y += 2;
-                //drawObject(&enemy);
-                if(enemy.y > SH-1 - enemy.height){
-                    enemy.y = SH - enemy.height;
-                    drawObject(&enemy);
-                    paddleDirection = 0;
-                }
-            }
-
-            if (paddleDirection == 0) {
-                enemy.y -= 2;
-                //drawObject(&enemy);
-                if(enemy.y < 0){
-                    enemy.y = 0;
-                    drawObject(&enemy);
-                    paddleDirection = 1;
-                }
-            }
-
             //frames per second---------------------------------------------------------- 
             VRAM[15] = 0; 
             VRAM[FPS] = RGB(31, 31, 0);                               //draw fps 
@@ -175,10 +149,36 @@ int main() {
             
             lastFr=REG_TM2D>>12;                                    //reset counter?
             
-            //swap buffers---------------------------------------------------------------
+            //swap buffers------- IT MUST BE DONE BEFORE DRAWING ANYTHING - OTHERWISE WE DRAW TO DISPLAYED PAGE
             while(*Scanline<160){}	                                         //wait all scanlines
             if  ( DISPCNT&BACKB){ DISPCNT &= ~BACKB; VRAM=(u16*)VRAM_B;}      //back  buffer
-            else{                 DISPCNT |=  BACKB; VRAM=(u16*)VRAM_F;}      //front buffer  
+            else{                 DISPCNT |=  BACKB; VRAM=(u16*)VRAM_F;}      //front buffer
+
+            clearBackground();
+            buttons();
+            drawObject(&player);
+            drawObject(&enemy);
+            drawObject(&ball);
+
+            if (paddleDirection == 1) {
+                enemy.y += 2;
+                drawObject(&enemy);
+                if(enemy.y > SH-1 - enemy.height){
+                    enemy.y = SH - enemy.height;
+                    drawObject(&enemy);
+                    paddleDirection = 0;
+                }
+            }
+
+            if (paddleDirection == 0) {
+                enemy.y -= 2;
+                drawObject(&enemy);
+                if(enemy.y < 0){
+                    enemy.y = 0;
+                    drawObject(&enemy);
+                    paddleDirection = 1;
+                }
+            }
         }
     }
 }

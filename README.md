@@ -6,5 +6,9 @@ A simple pong game made to learn developing games on GBA
 3. Make sure that your c/c++ code file is in `source` folder!
 4. Run `make` in command prompt in your project directory
 # Based on:
-* https://www.youtube.com/watch?v=6ecgELrwAnQ - gba.h file and main code
+* https://github.com/3DSage/GBA_Mode_5_Starter - gba.h file and main code
 * https://github.com/gbadev-org/libtonc-examples/blob/master/basic/first/Makefile - makefile for building project
+## Other works:
+* https://www.youtube.com/watch?v=6ecgELrwAnQ
+* https://gbadev.net/tonc/foreword.html
+
