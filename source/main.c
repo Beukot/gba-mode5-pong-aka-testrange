@@ -33,6 +33,9 @@ Object ball;
 
 int ballDX = 1;
 int ballDY = 1;
+int paddleDirection = 1;
+
+bool twoPlayerMode = false;
 
 void clearBackground()
 {
@@ -123,6 +126,28 @@ void moveBall() {
     drawObject(&ball);
 }
 
+void moveEnemy() {
+    if (paddleDirection == 1) {
+        enemy.y += enemy.speed;
+        drawObject(&enemy);
+        if(enemy.y > SH-1 - enemy.height){
+            enemy.y = SH - enemy.height;
+            drawObject(&enemy);
+            paddleDirection = 0;
+        }
+    }
+
+    if (paddleDirection == 0) {
+        enemy.y -= enemy.speed;
+        drawObject(&enemy);
+        if(enemy.y < 0){
+            enemy.y = 0;
+            drawObject(&enemy);
+            paddleDirection = 1;
+        }
+    }
+}
+
 //this is useless when using pageflipping
 //void moveObject(Object* o, int dx, int dy) {
 //    clearObject(o);
@@ -133,6 +158,15 @@ void moveBall() {
 
 void buttons()                                            
 {
+    extern u16 __key_curr, __key_prev;
+
+    __key_prev= __key_curr;
+    __key_curr= ~KEY_STATE & 0x03FF;
+
+    if (( __key_curr &~ __key_prev) & 0x0200) {
+        twoPlayerMode = !twoPlayerMode;
+    }
+
     if(KEY_R ){ } 
     if(KEY_L ){ }
     
@@ -154,9 +188,23 @@ void buttons()
         }
     }
     
-    if(KEY_A ){ } 
-    if(KEY_B ){ } 
-    if(KEY_LS){ } 
+    if(KEY_A ) {
+        enemy.y -= player.speed;
+        drawObject(&enemy);
+        if(enemy.y < 0){
+            enemy.y = 0;
+            drawObject(&enemy);
+        }
+    }
+    if(KEY_B ) {
+        enemy.y += player.speed;
+        drawObject(&enemy);
+        if(enemy.y > SH-1 - enemy.height){
+            enemy.y = SH - enemy.height;
+            drawObject(&enemy);
+        }
+    }
+    if(KEY_LS){ }
     if(KEY_RS){ } 
     if(KEY_ST){ } 
     if(KEY_SL){ } 
@@ -198,8 +246,6 @@ int main() {
     REG_BG2PD=128;                                         //256=normal 128=scale
 
     init();
-
-    int paddleDirection = 1;
     
     while (1) {
         if(REG_TM2D>>12!=lastFr) {
@@ -221,29 +267,10 @@ int main() {
 
             clearBackground();
             buttons();
+            moveBall();
+            if (!twoPlayerMode) { moveEnemy(); }
             drawObject(&player);
             drawObject(&enemy);
-            moveBall();
-
-            if (paddleDirection == 1) {
-                enemy.y += enemy.speed;
-                drawObject(&enemy);
-                if(enemy.y > SH-1 - enemy.height){
-                    enemy.y = SH - enemy.height;
-                    drawObject(&enemy);
-                    paddleDirection = 0;
-                }
-            }
-
-            if (paddleDirection == 0) {
-                enemy.y -= enemy.speed;
-                drawObject(&enemy);
-                if(enemy.y < 0){
-                    enemy.y = 0;
-                    drawObject(&enemy);
-                    paddleDirection = 1;
-                }
-            }
         }
     }
 }
